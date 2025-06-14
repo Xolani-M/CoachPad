@@ -35,3 +35,40 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 # front-end-project
+
+
+
+
+
+## Wireframes & Design
+
+### User Flow Overview
+![User Flow](./public/wireframes/user_flow_view.PNG)
+
+### Authentication Screens
+
+#### Client Login
+![Client Login](./public/wireframes/client_login.PNG)
+
+#### Client Registration
+![Client Registration](./public/wireframes/client_reg.PNG)
+
+#### Trainer Login & Registration
+![Trainer Authentication](./public/wireframes/trainer_%20reg_login.PNG)
+
+### Client Interface
+
+#### Client Dashboard & Meal Plan Details
+![Client Dashboard](./public/wireframes/client_dashboard_feat.PNG)
+
+### Trainer Interface
+
+#### Trainer Dashboard & Client Management
+![Trainer Dashboard](./public/wireframes/trainer_dashboard_feat.PNG)
+
+#### Meal Plan & Food Management
+![Meal Plan Management](./public/wireframes/trainer_meal_plan.PNG)
+
+### Mobile Responsive Views
+![Mobile Views](./public/wireframes/mobile_response_views.PNG)
+

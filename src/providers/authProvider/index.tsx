@@ -29,12 +29,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(AuthReducer, INITIAL_AUTH_STATE);
 
   const setTokenCookie = (token: string) => {
-    Cookies.set(TOKEN_COOKIE_NAME, token, { expires: TOKEN_EXPIRY_DAYS });
+    const cleanToken = token.replace(/^Bearer\s+/, '');
+    Cookies.set(TOKEN_COOKIE_NAME, cleanToken, { TOKEN_EXPIRY_DAYS });
   };
 
-  const removeTokenCookie = () => {
-    Cookies.remove(TOKEN_COOKIE_NAME);
-  };
+  
 
   const handleAuthResponse = useCallback(
     async (email: string, password: string) => {
@@ -58,32 +57,54 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 
   const login = useCallback(
-    async (credentials: ILoginRequest) => {
-      dispatch(actions.loginPending());
-      try {
-        removeTokenCookie();
-        const authData = await handleAuthResponse(credentials.email, credentials.password);
-        dispatch(actions.loginSuccess(authData));
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Login failed';
-        dispatch(actions.loginError(message));
-      }
-    },
-    [handleAuthResponse]
-  );
+  async (credentials: ILoginRequest) => {
+    dispatch(actions.loginPending());
+
+    try {
+      const { data } = await getAxiosInstance().post(
+        '/users/login',
+        qs.stringify(credentials),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+
+      const token: string = data?.data?.token ?? data?.token;
+      if (!token) throw new Error('No token received');
+
+      const cleanToken = token.replace(/^Bearer\s+/, '');
+      Cookies.set(TOKEN_COOKIE_NAME, cleanToken, { expires: 7 });
+
+      const decoded = decodeToken(cleanToken);
+      const user = mapDecodedTokenToUser(decoded);
+
+      dispatch(actions.loginSuccess({ token: cleanToken, user }));
+
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Login failed';
+      dispatch(actions.loginError(message));
+    }
+  },
+  []
+);
+
 
   const registerTrainer = useCallback(
     async (trainer: ITrainerRegisterRequest) => {
       dispatch(actions.registerTrainerPending());
 
       const payload = qs.stringify({
-        ...trainer,
+        name: trainer.name,
+        email: trainer.email,
+        password: trainer.password,
+        confirmPassword: trainer.confirmPassword,
+        contactNumber: trainer.contactNumber,
         role: 'admin',
         planType: 'base',
         activeState: 'true',
         trial: 'false',
         policiesAccepted: 'true',
       });
+
+
 
       try {
         await getAxiosInstance().post('/users/register', payload, {
@@ -111,7 +132,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const registerClient = useCallback(
     async (client: IClientRegisterRequest) => {
       dispatch(actions.registerClientPending());
-      removeTokenCookie();
 
       try {
         await getAxiosInstance().post(
@@ -133,37 +153,76 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [handleAuthResponse]
   );
 
+
+  const getCurrentUser = useCallback(async (): Promise<void> => {
+  dispatch(actions.checkAuthPending());
+
+  const rawToken = Cookies.get(TOKEN_COOKIE_NAME);
+
+  if (!rawToken) {
+    console.warn('No token found in cookies. Skipping user fetch.');
+    dispatch(actions.checkAuthError('No token found'));
+    return;
+  }
+
+  try {
+    // Decode and strip any accidental "Bearer " prefix
+    const token = decodeURIComponent(rawToken.replace(/^Bearer\s+/, ''));
+
+    const { data } = await getAxiosInstance().get('/user/current', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    dispatch(actions.checkAuthSuccess({ user: data, token }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch current user';
+    console.error('getCurrentUser failed:', message);
+    dispatch(actions.checkAuthError(message));
+  }
+}, []);
+
+
+
+
+
   const createClient = useCallback(
-    async (clientData: IClientCreateRequest) => {
-      dispatch(actions.createClientPending());
-      try {
-        const token = Cookies.get(TOKEN_COOKIE_NAME);
-        if (!token) throw new Error('No token found');
+  async (clientData: IClientCreateRequest) => {
+    dispatch(actions.createClientPending());
 
-        await getAxiosInstance().post(
-          '/client',
-          qs.stringify({ ...clientData, activeState: 'true' }),
-          {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+    try {
+      const rawToken = Cookies.get(TOKEN_COOKIE_NAME);
+      if (!rawToken) throw new Error('No token found');
 
-        dispatch(actions.createClientSuccess());
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Create client failed';
-        dispatch(actions.createClientError(message));
-      }
-    },
-    []
-  );
+      // Decode and clean the token
+      const token = decodeURIComponent(rawToken.replace(/^Bearer\s+/, ''));
+
+      await getAxiosInstance().post(
+        '/client',
+        qs.stringify({ ...clientData, activeState: 'true' }),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      dispatch(actions.createClientSuccess());
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Create client failed';
+      console.error('createClient failed:', message);
+      dispatch(actions.createClientError(message));
+    }
+  },
+  []
+);
+
 
   const logout = useCallback(async () => {
     dispatch(actions.logoutPending());
     try {
-      removeTokenCookie();
       dispatch(actions.logoutSuccess());
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Logout failed';
@@ -173,7 +232,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuth = useCallback(async () => {
     dispatch(actions.checkAuthPending());
-    const token = Cookies.get(TOKEN_COOKIE_NAME);
+    const rawToken = Cookies.get(TOKEN_COOKIE_NAME);
+    const token = rawToken ? decodeURIComponent(rawToken) : null;
+
     if (!token) {
       dispatch(actions.checkAuthError('No token found'));
       return;
@@ -188,7 +249,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('No user returned');
       }
     } catch (error: unknown) {
-      removeTokenCookie();
       const message = error instanceof Error ? error.message : 'Auth check failed';
       dispatch(actions.checkAuthError(message));
     }
@@ -201,6 +261,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     createClient,
     logout,
     checkAuth,
+    getCurrentUser,
   };
 
   return (

@@ -1,11 +1,10 @@
 // utils/auth/JwtHandler.tsx
 import { jwtDecode } from 'jwt-decode';
 
-
 export interface IDecodedToken {
   [key: string]: unknown;
   id: string;
-  username: string;
+  username?: string;
   sub?: string;
   jti?: string;
   iat?: number;
@@ -21,23 +20,30 @@ export interface IDecodedToken {
 }
 
 export const decodeToken = (jwtToken: string): IDecodedToken => {
-  const decoded = jwtDecode<IDecodedToken>(jwtToken);
-  console.log("🔍 Decoded Token:", decoded);
-  return decoded;
+  try {
+    const decoded = jwtDecode<IDecodedToken>(jwtToken);
+    console.log("🔍 Decoded Token:", decoded);
+    return decoded;
+  } catch (error) {
+    console.error("❌ Failed to decode token:", error);
+    return {} as IDecodedToken;
+  }
 };
 
 export const getRole = (loginObj: { jwtToken: string }): string => {
   if (loginObj?.jwtToken) {
     const decoded = decodeToken(loginObj.jwtToken);
-    return `${decoded.role  ?? "client"}`.toLowerCase();
+    const role = decoded.role;
+    if (role === 'admin' || role === 'user') return role;
+    return 'user';
   }
-  return "client";
+  return 'user';
 };
 
 export const getId = (token: string): string => {
   if (token) {
     const decoded = decodeToken(token);
-    return `${ decoded.id ?? "1"}`.toLowerCase();
+    return decoded.id ?? "1";
   }
   return "1";
 };
@@ -45,7 +51,7 @@ export const getId = (token: string): string => {
 export const getName = (token: string): string => {
   if (token) {
     const decoded = decodeToken(token);
-    return `${decoded.name  ?? ""}`;
+    return decoded.name ?? "";
   }
   return "";
 };
@@ -53,7 +59,7 @@ export const getName = (token: string): string => {
 export const getEmail = (token: string): string => {
   if (token) {
     const decoded = decodeToken(token);
-    return `${decoded.email ?? ""}`;
+    return decoded.email ?? "";
   }
   return "";
 };

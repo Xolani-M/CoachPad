@@ -1,7 +1,5 @@
-'use client';
-
 import { createAction } from 'redux-actions';
-import { IUser, IAuthStateContext } from './context';
+import { IAuthState, IUser } from './context';
 
 export enum AuthActionEnums {
   LoginPending = 'LOGIN_PENDING',
@@ -12,13 +10,13 @@ export enum AuthActionEnums {
   RegisterTrainerSuccess = 'REGISTER_TRAINER_SUCCESS',
   RegisterTrainerError = 'REGISTER_TRAINER_ERROR',
 
-  CreateClientPending = 'CREATE_CLIENT_PENDING',
-  CreateClientSuccess = 'CREATE_CLIENT_SUCCESS',
-  CreateClientError = 'CREATE_CLIENT_ERROR',
-
   RegisterClientPending = 'REGISTER_CLIENT_PENDING',
   RegisterClientSuccess = 'REGISTER_CLIENT_SUCCESS',
   RegisterClientError = 'REGISTER_CLIENT_ERROR',
+
+  CreateClientPending = 'CREATE_CLIENT_PENDING',
+  CreateClientSuccess = 'CREATE_CLIENT_SUCCESS',
+  CreateClientError = 'CREATE_CLIENT_ERROR',
 
   LogoutPending = 'LOGOUT_PENDING',
   LogoutSuccess = 'LOGOUT_SUCCESS',
@@ -33,247 +31,300 @@ export enum AuthActionEnums {
   RefreshTokenError = 'REFRESH_TOKEN_ERROR',
 }
 
-// --------------------- LOGIN ---------------------
+// -------------------- Login --------------------
 
-export const loginPending = createAction<IAuthStateContext>(
+export const loginPending = createAction<IAuthState>(
   AuthActionEnums.LoginPending,
   () => ({
     isPending: true,
     isSuccess: false,
     isError: false,
     isAuthenticated: false,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-export const loginSuccess = createAction<
-  IAuthStateContext,
-  { user: IUser; token: string; refreshToken?: string }
->(AuthActionEnums.LoginSuccess, ({ user, token, refreshToken }) => ({
-  isPending: false,
-  isSuccess: true,
-  isError: false,
-  isAuthenticated: true,
-  user,
-  token,
-  refreshToken,
-}));
+export const loginSuccess = createAction<IAuthState, { user: IUser; token: string }>(
+  AuthActionEnums.LoginSuccess,
+  ({ user, token }) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    isAuthenticated: true,
+    token,
+    userRole: user.role,
+    authLoaded: true,
+  })
+);
 
-export const loginError = createAction<IAuthStateContext, string>(
+export const loginError = createAction<IAuthState, string>(
   AuthActionEnums.LoginError,
   (error) => ({
     isPending: false,
     isSuccess: false,
     isError: true,
-    error,
     isAuthenticated: false,
+    error,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-// --------------------- REGISTER TRAINER ---------------------
+// -------------------- Register Trainer --------------------
 
-export const registerTrainerPending = createAction<IAuthStateContext>(
+export const registerTrainerPending = createAction<IAuthState>(
   AuthActionEnums.RegisterTrainerPending,
   () => ({
     isPending: true,
     isSuccess: false,
     isError: false,
     isAuthenticated: false,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-export const registerTrainerSuccess = createAction<
-  IAuthStateContext,
-  { user: IUser; token: string; refreshToken?: string }
->(AuthActionEnums.RegisterTrainerSuccess, ({ user, token, refreshToken }) => ({
-  isPending: false,
-  isSuccess: true,
-  isError: false,
-  isAuthenticated: true,
-  user,
-  token,
-  refreshToken,
-}));
+export const registerTrainerSuccess = createAction<IAuthState, { user: IUser; token: string }>(
+  AuthActionEnums.RegisterTrainerSuccess,
+  ({ user, token }) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    isAuthenticated: true,
+    user,
+    token,
+    userRole: user.role,
+    authLoaded: true,
+  })
+);
 
-export const registerTrainerError = createAction<IAuthStateContext, string>(
+export const registerTrainerError = createAction<IAuthState, string>(
   AuthActionEnums.RegisterTrainerError,
   (error) => ({
     isPending: false,
     isSuccess: false,
     isError: true,
-    error,
     isAuthenticated: false,
-  })
-);
-
-// --------------------- CREATE CLIENT (by trainer) ---------------------
-
-export const createClientPending = createAction<IAuthStateContext>(
-  AuthActionEnums.CreateClientPending,
-  () => ({
-    isPending: true,
-    isSuccess: false,
-    isError: false,
-    isAuthenticated: true,
-  })
-);
-
-export const createClientSuccess = createAction<IAuthStateContext>(
-  AuthActionEnums.CreateClientSuccess,
-  () => ({
-    isPending: false,
-    isSuccess: true,
-    isError: false,
-    isAuthenticated: true,
-  })
-);
-
-export const createClientError = createAction<IAuthStateContext, string>(
-  AuthActionEnums.CreateClientError,
-  (error) => ({
-    isPending: false,
-    isSuccess: false,
-    isError: true,
     error,
-    isAuthenticated: true,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-// --------------------- REGISTER CLIENT ---------------------
+// -------------------- Register Client --------------------
 
-export const registerClientPending = createAction<IAuthStateContext>(
+export const registerClientPending = createAction<IAuthState>(
   AuthActionEnums.RegisterClientPending,
   () => ({
     isPending: true,
     isSuccess: false,
     isError: false,
     isAuthenticated: false,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-export const registerClientSuccess = createAction<
-  IAuthStateContext,
-  { user: IUser; token: string; refreshToken?: string }
->(AuthActionEnums.RegisterClientSuccess, ({ user, token, refreshToken }) => ({
-  isPending: false,
-  isSuccess: true,
-  isError: false,
-  isAuthenticated: true,
-  user,
-  token,
-  refreshToken,
-}));
+export const registerClientSuccess = createAction<IAuthState, { user: IUser; token: string }>(
+  AuthActionEnums.RegisterClientSuccess,
+  ({ user, token }) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    isAuthenticated: true,
+    user,
+    token,
+    userRole: user.role,
+    authLoaded: true,
+  })
+);
 
-export const registerClientError = createAction<IAuthStateContext, string>(
+export const registerClientError = createAction<IAuthState, string>(
   AuthActionEnums.RegisterClientError,
   (error) => ({
     isPending: false,
     isSuccess: false,
     isError: true,
-    error,
     isAuthenticated: false,
+    error,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-// --------------------- LOGOUT ---------------------
+// -------------------- Create Client --------------------
 
-export const logoutPending = createAction<IAuthStateContext>(
+export const createClientPending = createAction<IAuthState>(
+  AuthActionEnums.CreateClientPending,
+  () => ({
+    isPending: true,
+    isSuccess: false,
+    isError: false,
+    isAuthenticated: true,
+    token: null,
+    userRole: null,
+    authLoaded: true,
+  })
+);
+
+export const createClientSuccess = createAction<IAuthState>(
+  AuthActionEnums.CreateClientSuccess,
+  () => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    isAuthenticated: true,
+    token: null,
+    userRole: null,
+    authLoaded: true,
+  })
+);
+
+export const createClientError = createAction<IAuthState, string>(
+  AuthActionEnums.CreateClientError,
+  (error) => ({
+    isPending: false,
+    isSuccess: false,
+    isError: true,
+    isAuthenticated: true,
+    error,
+    token: null,
+    userRole: null,
+    authLoaded: true,
+  })
+);
+
+// -------------------- Logout --------------------
+
+export const logoutPending = createAction<IAuthState>(
   AuthActionEnums.LogoutPending,
   () => ({
     isPending: true,
     isSuccess: false,
     isError: false,
     isAuthenticated: true,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-export const logoutSuccess = createAction<IAuthStateContext>(
+export const logoutSuccess = createAction<IAuthState>(
   AuthActionEnums.LogoutSuccess,
   () => ({
     isPending: false,
-    isSuccess: true,
+    isSuccess: false,
     isError: false,
     isAuthenticated: false,
+    user: undefined,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-export const logoutError = createAction<IAuthStateContext, string>(
+export const logoutError = createAction<IAuthState, string>(
   AuthActionEnums.LogoutError,
   (error) => ({
     isPending: false,
-    isSuccess: false,
     isError: true,
-    error,
     isAuthenticated: true,
+    error,
+    token: null,
+    userRole: null,
+    isSuccess: false,
+    authLoaded: true,
   })
 );
 
-// --------------------- AUTH CHECK ---------------------
+// -------------------- Check Auth --------------------
 
-export const checkAuthPending = createAction<IAuthStateContext>(
+export const checkAuthPending = createAction<IAuthState>(
   AuthActionEnums.CheckAuthPending,
   () => ({
     isPending: true,
     isSuccess: false,
     isError: false,
     isAuthenticated: false,
+    token: null,
+    userRole: null,
+    authLoaded: false,
   })
 );
 
-export const checkAuthSuccess = createAction<
-  IAuthStateContext,
-  { user: IUser; token: string; refreshToken?: string }
->(AuthActionEnums.CheckAuthSuccess, ({ user, token, refreshToken }) => ({
-  isPending: false,
-  isSuccess: true,
-  isError: false,
-  isAuthenticated: true,
-  user,
-  token,
-  refreshToken,
-}));
+export const checkAuthSuccess = createAction<IAuthState, { user: IUser; token: string }>(
+  AuthActionEnums.CheckAuthSuccess,
+  ({ user, token }) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    isAuthenticated: true,
+    user,
+    token,
+    userRole: user.role,
+    authLoaded: true,
+  })
+);
 
-export const checkAuthError = createAction<IAuthStateContext, string>(
+export const checkAuthError = createAction<IAuthState, string>(
   AuthActionEnums.CheckAuthError,
   (error) => ({
     isPending: false,
     isSuccess: false,
     isError: true,
-    error,
     isAuthenticated: false,
+    error,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-// --------------------- REFRESH TOKEN ---------------------
+// -------------------- Refresh Token --------------------
 
-export const refreshTokenPending = createAction<IAuthStateContext>(
+export const refreshTokenPending = createAction<IAuthState>(
   AuthActionEnums.RefreshTokenPending,
   () => ({
     isPending: true,
     isSuccess: false,
     isError: false,
     isAuthenticated: true,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );
 
-export const refreshTokenSuccess = createAction<
-  IAuthStateContext,
-  { token: string; refreshToken?: string }
->(AuthActionEnums.RefreshTokenSuccess, ({ token, refreshToken }) => ({
-  isPending: false,
-  isSuccess: true,
-  isError: false,
-  isAuthenticated: true,
-  token,
-  refreshToken,
-}));
+export const refreshTokenSuccess = createAction<IAuthState, string>(
+  AuthActionEnums.RefreshTokenSuccess,
+  (token) => ({
+    isPending: false,
+    isSuccess: true,
+    isError: false,
+    isAuthenticated: true,
+    token,
+    userRole: null,
+    authLoaded: true,
+  })
+);
 
-export const refreshTokenError = createAction<IAuthStateContext, string>(
+export const refreshTokenError = createAction<IAuthState, string>(
   AuthActionEnums.RefreshTokenError,
   (error) => ({
     isPending: false,
     isSuccess: false,
     isError: true,
+    isAuthenticated: true,
     error,
-    isAuthenticated: false,
+    token: null,
+    userRole: null,
+    authLoaded: true,
   })
 );

@@ -1,10 +1,9 @@
-// file: context.tsx
-"use client";
+'use client';
 
-import { createContext } from "react";
+import { createContext } from 'react';
 
 // -------------------- Role Definitions --------------------
-export type UserRole = "admin" | "user"; // Based on API
+export type UserRole = 'admin' | 'user';
 
 // -------------------- Base User Interface --------------------
 interface IBaseUser {
@@ -26,7 +25,6 @@ export interface ITrainer extends IBaseUser {
   trainerId?: string;
   planType?: string;
   trial?: boolean;
-  avatar?: string;
 }
 
 export interface IClient extends IBaseUser {
@@ -35,11 +33,9 @@ export interface IClient extends IBaseUser {
   sex?: string;
 }
 
-// Union type for user
 export type IUser = ITrainer | IClient;
 
 // -------------------- Authentication Request Payloads --------------------
-
 export interface ILoginRequest {
   email: string;
   password: string;
@@ -80,9 +76,8 @@ export interface IClientRegisterRequest {
   clientId?: string;
 }
 
-// -------------------- Authentication State and Actions --------------------
-
-export interface IAuthStateContext {
+// -------------------- Auth State (State Only) --------------------
+export interface IAuthState {
   isPending: boolean;
   isSuccess: boolean;
   isError: boolean;
@@ -90,9 +85,12 @@ export interface IAuthStateContext {
   isAuthenticated: boolean;
   user?: IUser;
   permissions?: string[];
-  token?: string;
+  token: string | null;
+  userRole: string | null;
+  authLoaded: boolean;
 }
 
+// -------------------- Actions Context --------------------
 export interface IAuthActionContext {
   login: (credentials: ILoginRequest) => Promise<void>;
   registerTrainer: (userData: ITrainerRegisterRequest) => Promise<void>;
@@ -101,19 +99,25 @@ export interface IAuthActionContext {
   logout: () => void;
   checkAuth: () => Promise<void>;
   refreshToken?: () => Promise<void>;
+  getCurrentUser: () => Promise<void>;
 }
 
-// -------------------- Contexts --------------------
+// -------------------- Combined Context Type (Optional) --------------------
+export type IAuthStateContext = IAuthState & IAuthActionContext;
 
-export const INITIAL_AUTH_STATE: IAuthStateContext = {
+// -------------------- Initial State --------------------
+export const INITIAL_AUTH_STATE: IAuthState = {
   isPending: false,
   isSuccess: false,
   isError: false,
   isAuthenticated: false,
   user: undefined,
-  token: undefined,
+  permissions: [],
+  token: null,
+  userRole: null,
+  authLoaded: false,
 };
 
-export const AuthStateContext = createContext<IAuthStateContext>(INITIAL_AUTH_STATE);
-
+// -------------------- Contexts --------------------
+export const AuthStateContext = createContext<IAuthState>(INITIAL_AUTH_STATE);
 export const AuthActionContext = createContext<IAuthActionContext>(undefined!);

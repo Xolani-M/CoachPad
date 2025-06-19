@@ -1,11 +1,15 @@
 'use client';
 
+import React from 'react';
+import { ThemeProvider } from 'react-jss';
 import { AuthProvider } from '@/providers/authProvider';
 
 export const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return (
-    <AuthProvider>
+    <ThemeProvider theme={{}}>
+      <AuthProvider>
         {children}
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };

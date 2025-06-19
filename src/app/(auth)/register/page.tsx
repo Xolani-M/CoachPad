@@ -117,7 +117,7 @@ const RegisterPageInner: React.FC = () => {
       <div className={searchParams.get('role') ? '' : classes.withRoleSelector}>
         {(registrationError || error) && (
           <div className={classes.errorMessage}>
-            {registrationError || error}
+            {registrationError || (typeof error === 'string' ? error : 'An unexpected error occurred.')}
           </div>
         )}
 
@@ -128,7 +128,7 @@ const RegisterPageInner: React.FC = () => {
           isSuccess={isSuccess}
           isError={isError}
           isAuthenticated={isAuthenticated}
-          errorMessage={registrationError || error || ''}
+          errorMessage={registrationError || (typeof error === 'string' ? error : '')}
         />
       </div>
     </>

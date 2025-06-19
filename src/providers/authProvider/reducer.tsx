@@ -1,114 +1,195 @@
-// src/providers/authProvider/reducer.tsx
-
 import { handleActions } from 'redux-actions';
-import { IAuthStateContext, INITIAL_AUTH_STATE } from './context';
+import { IAuthState, IUser, INITIAL_AUTH_STATE } from './context';
 import { AuthActionEnums } from './actions';
 
-export const AuthReducer = handleActions<IAuthStateContext, IAuthStateContext>(
+type AuthActionPayload =
+  | { user: IUser; token: string } // for LoginSuccess, RegisterSuccess, etc.
+  | { token: string }              // for RefreshTokenSuccess
+  | string                         // for error messages
+  | Partial<IAuthState>;           // for generic fallback
+
+export const AuthReducer = handleActions<IAuthState, AuthActionPayload>(
   {
-    [AuthActionEnums.LoginPending]: (state, action) => ({
+    [AuthActionEnums.LoginPending]: (state) => ({
       ...state,
-      ...action.payload,
+      isPending: true,
+      isSuccess: false,
+      isError: false,
+      error: '',
     }),
 
     [AuthActionEnums.LoginSuccess]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: true,
+      isError: false,
+      error: '',
+      isAuthenticated: true,
+      token: (action.payload as { token: string }).token,
+      user: (action.payload as { user: IUser }).user,
+      userRole: (action.payload as { user: IUser }).user?.role ?? null,
     }),
 
     [AuthActionEnums.LoginError]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: false,
+      isError: true,
+      isAuthenticated: false,
+      error: action.payload as string,
+      token: null,
+      user: undefined,
+      userRole: null,
     }),
 
-    [AuthActionEnums.RegisterTrainerPending]: (state, action) => ({
+    [AuthActionEnums.RegisterTrainerPending]: (state) => ({
       ...state,
-      ...action.payload,
+      isPending: true,
+      isSuccess: false,
+      isError: false,
+      error: '',
     }),
 
     [AuthActionEnums.RegisterTrainerSuccess]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: true,
+      isError: false,
+      isAuthenticated: true,
+      token: (action.payload as { token: string }).token,
+      user: (action.payload as { user: IUser }).user,
+      userRole: (action.payload as { user: IUser }).user?.role ?? null,
     }),
 
     [AuthActionEnums.RegisterTrainerError]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: false,
+      isError: true,
+      isAuthenticated: false,
+      error: action.payload as string,
     }),
 
-    [AuthActionEnums.RegisterClientPending]: (state, action) => ({
+    [AuthActionEnums.RegisterClientPending]: (state) => ({
       ...state,
-      ...action.payload,
+      isPending: true,
+      isSuccess: false,
+      isError: false,
+      error: '',
     }),
 
     [AuthActionEnums.RegisterClientSuccess]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: true,
+      isError: false,
+      isAuthenticated: true,
+      token: (action.payload as { token: string }).token,
+      user: (action.payload as { user: IUser }).user,
+      userRole: (action.payload as { user: IUser }).user?.role ?? null,
     }),
 
     [AuthActionEnums.RegisterClientError]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: false,
+      isError: true,
+      isAuthenticated: false,
+      error: action.payload as string,
     }),
 
-    [AuthActionEnums.CreateClientPending]: (state, action) => ({
+    [AuthActionEnums.CreateClientPending]: (state) => ({
       ...state,
-      ...action.payload,
+      isPending: true,
+      isSuccess: false,
+      isError: false,
+      error: '',
     }),
 
-    [AuthActionEnums.CreateClientSuccess]: (state, action) => ({
+    [AuthActionEnums.CreateClientSuccess]: (state) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: true,
+      isError: false,
+      error: '',
     }),
 
     [AuthActionEnums.CreateClientError]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: false,
+      isError: true,
+      error: action.payload as string,
     }),
 
-    [AuthActionEnums.LogoutPending]: (state, action) => ({
+    [AuthActionEnums.LogoutPending]: (state) => ({
       ...state,
-      ...action.payload,
+      isPending: true,
+      isSuccess: false,
+      isError: false,
     }),
 
-    [AuthActionEnums.LogoutSuccess]: (state, action) => ({
-      ...state,
-      ...action.payload,
+    [AuthActionEnums.LogoutSuccess]: () => ({
+      ...INITIAL_AUTH_STATE,
     }),
 
     [AuthActionEnums.LogoutError]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: false,
+      isError: true,
+      error: action.payload as string,
     }),
 
-    [AuthActionEnums.CheckAuthPending]: (state, action) => ({
+    [AuthActionEnums.CheckAuthPending]: (state) => ({
       ...state,
-      ...action.payload,
+      isPending: true,
+      isSuccess: false,
+      isError: false,
     }),
 
     [AuthActionEnums.CheckAuthSuccess]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: true,
+      isError: false,
+      isAuthenticated: true,
+      token: (action.payload as { token: string }).token,
+      user: (action.payload as { user: IUser }).user,
+      userRole: (action.payload as { user: IUser }).user?.role ?? null,
     }),
 
     [AuthActionEnums.CheckAuthError]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: false,
+      isError: true,
+      isAuthenticated: false,
+      token: null,
+      user: undefined,
+      userRole: null,
+      error: action.payload as string,
     }),
 
-    [AuthActionEnums.RefreshTokenPending]: (state, action) => ({
+    [AuthActionEnums.RefreshTokenPending]: (state) => ({
       ...state,
-      ...action.payload,
+      isPending: true,
+      isSuccess: false,
+      isError: false,
     }),
 
     [AuthActionEnums.RefreshTokenSuccess]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isSuccess: true,
+      token: (action.payload as { token: string }).token,
     }),
 
     [AuthActionEnums.RefreshTokenError]: (state, action) => ({
       ...state,
-      ...action.payload,
+      isPending: false,
+      isError: true,
+      error: action.payload as string,
     }),
   },
   INITIAL_AUTH_STATE

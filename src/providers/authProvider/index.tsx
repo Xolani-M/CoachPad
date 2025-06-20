@@ -147,28 +147,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 
 
-   const getCurrentUser = useCallback(async (): Promise<{ user: IUser; token: string } | null> => {
-    dispatch(actions.checkAuthPending());
+  const getCurrentUser = useCallback(async (): Promise<{ user: IUser; token: string } | null> => {
+  dispatch(actions.checkAuthPending());
 
-    const rawToken = Cookies.get(TOKEN_COOKIE_NAME);
-    if (!rawToken) {
-      dispatch(actions.checkAuthError('No token found'));
-      return null;
-    }
+  const rawToken = Cookies.get(TOKEN_COOKIE_NAME);
+  if (!rawToken) {
+    dispatch(actions.checkAuthError('No token found'));
+    return null;
+  }
 
-    try {
-      const token = decodeURIComponent(rawToken);
-      const decoded = decodeToken(token);
-      const user = mapDecodedTokenToUser(decoded);
+  try {
+    const token = decodeURIComponent(rawToken);
 
-      dispatch(actions.checkAuthSuccess({ user, token }));
-      return { user, token };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to decode token';
-      dispatch(actions.checkAuthError(message));
-      return null;
-    }
-  }, []);
+    const response = await getAxiosInstance().get('/user/current', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const user = response.data?.data;
+    if (!user || !user.role) throw new Error('Invalid user returned');
+
+    dispatch(actions.checkAuthSuccess({ user, token }));
+    return { user, token };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch current user';
+    dispatch(actions.checkAuthError(message));
+    return null;
+  }
+}, []);
+
 
 
 

@@ -131,9 +131,9 @@ export const useDashboardStyles = createUseStyles({
   },
   logoutButton: {
     backgroundColor: COLORS.danger,
-  '&:hover': {
-    backgroundColor: COLORS.dangerHover,
-  },
+    '&:hover': {
+      backgroundColor: COLORS.dangerHover,
+    },
   },
   button: {
     padding: '0.5rem 1rem',
@@ -197,11 +197,11 @@ export const useDashboardStyles = createUseStyles({
     margin: 0,
   },
   listItem: {
-  padding: '0.75rem 0',
-  borderBottom: `1px solid ${COLORS.lightGray}`,
-  fontSize: FONT.base,
-  color: COLORS.text,
-},
+    padding: '0.75rem 0',
+    borderBottom: `1px solid ${COLORS.lightGray}`,
+    fontSize: FONT.base,
+    color: COLORS.text,
+  },
   formSection: {
     marginTop: '2rem',
     padding: '1.5rem',
@@ -244,5 +244,13 @@ export const useDashboardStyles = createUseStyles({
     fontSize: FONT.base,
     fontWeight: 500,
     color: COLORS.text,
+  },
+
+  // ✅ Added missing style
+  clientGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+    gap: '1.5rem',
+    marginTop: '2rem',
   },
 });

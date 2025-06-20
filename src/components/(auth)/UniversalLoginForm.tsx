@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuthStyles } from '@/styles/authStyles';
+import { useAuthState } from '@/providers/authProvider';
 
 interface LoginFormProps {
   onSubmit: (data: { email: string; password: string }) => void;
@@ -21,11 +22,11 @@ const UniversalLoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
   isPending,
   isError,
-  isAuthenticated,
   errorMessage,
-  userRole,
 }) => {
   const classes = useAuthStyles();
+  const { authLoaded, isAuthenticated, userRole } = useAuthState();
+
 
   const [formData, setFormData] = useState<FormData>({
     email: '',
@@ -34,7 +35,8 @@ const UniversalLoginForm: React.FC<LoginFormProps> = ({
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
 
-  const validateEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateEmail = (email: string): boolean =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {};
@@ -75,12 +77,21 @@ const UniversalLoginForm: React.FC<LoginFormProps> = ({
   };
 
   useEffect(() => {
-    if (isAuthenticated && userRole) {
-      const redirectPath = userRole === 'trainer' ? '/dashboard/trainer' : '/dashboard/client';
-      window.history.replaceState(null, '', redirectPath);
+
+    console.log('🔍 Redirect check triggered');
+    console.log('authLoaded:', authLoaded);
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('userRole:', userRole);
+    if (authLoaded && isAuthenticated && userRole) {
+      const redirectPath = userRole === 'client' ? '/dashboard/client' : '/dashboard/trainer';
+       console.log('✅ Redirecting to:', redirectPath);
       window.location.href = redirectPath;
     }
-  }, [isAuthenticated, userRole]);
+  }, [authLoaded, isAuthenticated, userRole]);
+
+  if (authLoaded && isAuthenticated && userRole) {
+    return <p className={classes.redirectMessage}>Redirecting to your dashboard...</p>;
+  }
 
   return (
     <div suppressHydrationWarning className={classes.container}>
@@ -104,7 +115,9 @@ const UniversalLoginForm: React.FC<LoginFormProps> = ({
               disabled={isPending}
               autoComplete="email"
             />
-            {errors.email && <span className={classes.errorMessage}>{errors.email}</span>}
+            {errors.email && (
+              <span className={classes.errorMessage}>{errors.email}</span>
+            )}
           </div>
 
           <div className={classes.inputGroup}>
@@ -120,10 +133,16 @@ const UniversalLoginForm: React.FC<LoginFormProps> = ({
               disabled={isPending}
               autoComplete="current-password"
             />
-            {errors.password && <span className={classes.errorMessage}>{errors.password}</span>}
+            {errors.password && (
+              <span className={classes.errorMessage}>{errors.password}</span>
+            )}
           </div>
 
-          {isError && <div className={classes.globalError}>{errorMessage || 'Invalid credentials. Please try again.'}</div>}
+          {isError && (
+            <div className={classes.globalError}>
+              {errorMessage || 'Invalid credentials. Please try again.'}
+            </div>
+          )}
 
           <button
             type="submit"

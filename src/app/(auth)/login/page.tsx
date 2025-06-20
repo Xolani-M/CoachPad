@@ -17,7 +17,7 @@ const LoginPage = () => {
       const role = user?.role;
       if (role === "admin") {
         router.push("/dashboard/trainer");
-      } else if (role === "user") {
+      } else if (role === "client") {
         router.push("/dashboard/client");
       }
     }
@@ -35,7 +35,7 @@ const LoginPage = () => {
       isError={isError}
       isAuthenticated={isAuthenticated}
       errorMessage={typeof error === 'string' ? error : 'Something went wrong'}
-      userRole={user?.role === "admin" ? "trainer" : user?.role === "user" ? "client" : null}
+      userRole={user?.role === "admin" ? "trainer" : user?.role === "client" ? "client" : null}
     />
   );
 };

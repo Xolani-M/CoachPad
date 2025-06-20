@@ -17,6 +17,13 @@ export interface IDecodedToken {
   role?: string;
   roles?: string[];
   permissions?: string[];
+  features?: string[];
+  planType?: string;
+  trial?: boolean;
+  activeState?: boolean;
+  trainerId?: string;
+  sex?: string;
+  dateOfBirth?: string;
 }
 
 export const decodeToken = (jwtToken: string): IDecodedToken => {
@@ -33,33 +40,23 @@ export const decodeToken = (jwtToken: string): IDecodedToken => {
 export const getRole = (loginObj: { jwtToken: string }): string => {
   if (loginObj?.jwtToken) {
     const decoded = decodeToken(loginObj.jwtToken);
-    const role = decoded.role;
-    if (role === 'admin' || role === 'user') return role;
-    return 'user';
+    const role = decoded?.role;
+    return role === 'admin' || role === 'user' ? role : 'user';
   }
   return 'user';
 };
 
 export const getId = (token: string): string => {
-  if (token) {
-    const decoded = decodeToken(token);
-    return decoded.id ?? "1";
-  }
-  return "1";
+  const decoded = decodeToken(token);
+  return decoded?.id ?? '1';
 };
 
 export const getName = (token: string): string => {
-  if (token) {
-    const decoded = decodeToken(token);
-    return decoded.name ?? "";
-  }
-  return "";
+  const decoded = decodeToken(token);
+  return decoded?.name ?? '';
 };
 
 export const getEmail = (token: string): string => {
-  if (token) {
-    const decoded = decodeToken(token);
-    return decoded.email ?? "";
-  }
-  return "";
+  const decoded = decodeToken(token);
+  return decoded?.email ?? '';
 };

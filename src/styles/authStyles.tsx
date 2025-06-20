@@ -39,9 +39,9 @@ const styles = {
     },
   },
   subtitle: {
-    color: '#6b7280',
-    fontSize: '0.875rem',
-    lineHeight: '1.25rem',
+  
+    fontSize: 'FONT.sm',
+    color: 'COLORS.subtext',
   },
   form: {
     display: 'flex',
@@ -134,6 +134,13 @@ const styles = {
       backgroundColor: '#059669',
     },
   },
+  redirectMessage: {
+  textAlign: 'center',
+  fontSize: '1.1rem',
+  color: '#555',
+  marginTop: '2rem',
+},
+
   errorMessage: {
     color: '#ef4444',
     fontSize: '0.875rem',

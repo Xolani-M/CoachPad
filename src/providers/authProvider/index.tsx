@@ -181,30 +181,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 
   const createClient = useCallback(async (clientData: IClientCreateRequest) => {
-    dispatch(actions.createClientPending());
+  dispatch(actions.createClientPending());
 
-    try {
-      const rawToken = Cookies.get(TOKEN_COOKIE_NAME);
-      const token = rawToken ? decodeURIComponent(rawToken) : null;
-      if (!token) throw new Error('No token found');
+  try {
+    const rawToken = Cookies.get(TOKEN_COOKIE_NAME);
+    const token = rawToken ? decodeURIComponent(rawToken) : null;
+    if (!token) throw new Error('No token found');
 
-      await getAxiosInstance().post(
-        '/client',
-        qs.stringify({ ...clientData, activeState: 'true' }),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    const decoded = decodeToken(token);
+    const trainerId = decoded?.id;
+    if (!trainerId) throw new Error('Trainer ID missing from token');
 
-      dispatch(actions.createClientSuccess());
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Create client failed';
-      dispatch(actions.createClientError(message));
-    }
-  }, []);
+    console.log('🧠 Creating client with trainerId from token:', trainerId);
+
+    await getAxiosInstance().post(
+      '/client',
+      qs.stringify({ ...clientData, trainerId, activeState: 'true' }),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    dispatch(actions.createClientSuccess());
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Create client failed';
+    console.error('Client creation failed:', message);
+    dispatch(actions.createClientError(message));
+    throw error; // let calling component see the error
+  }
+}, []);
+
+
 
   const logout = useCallback(async () => {
     dispatch(actions.logoutPending());

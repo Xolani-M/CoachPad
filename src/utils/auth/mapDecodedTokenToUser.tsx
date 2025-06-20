@@ -9,7 +9,7 @@ export const mapDecodedTokenToUser = (decoded: IDecodedToken): IUser => {
   const safeRole: UserRole = isValidUserRole(decoded.role) ? decoded.role : 'client';
 
   return {
-    id: decoded.id || 'unknown',
+    id: decoded.id ?? decoded._id ?? decoded.sub ?? 'unknown',
     name: decoded.name || 'Unknown User',
     email: typeof decoded.email === 'string' && decoded.email !== '' ? decoded.email : 'unknown@example.com',
     role: safeRole,

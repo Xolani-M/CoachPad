@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   TrainerDashboardProvider,
   useTrainerDashboardActions,
@@ -15,23 +15,14 @@ const TrainerDashboardContent = () => {
   const { createClient, logout } = useAuthActions();
   const { isPending, isError, isSuccess, currentTrainer, clients } = useTrainerDashboardState();
 
-  const [clientSuccessMessage, setClientSuccessMessage] = React.useState<string | null>(null);
-  const [showClientForm, setShowClientForm] = React.useState(false);
-  const [clientData, setClientData] = React.useState({
+  const [clientSuccessMessage, setClientSuccessMessage] = useState<string | null>(null);
+  const [showClientForm, setShowClientForm] = useState(false);
+  const [clientData, setClientData] = useState({
     fullName: '',
     email: '',
     contactNumber: '',
     sex: '',
     dateOfBirth: '',
-    trainerId: '',
-  });
-
-  console.log('📦 Trainer State:', {
-    isPending,
-    isError,
-    isSuccess,
-    currentTrainer,
-    clients,
   });
 
   useEffect(() => {
@@ -44,20 +35,16 @@ const TrainerDashboardContent = () => {
     }
   }, [currentTrainer?.id, getClientsForTrainer]);
 
-  useEffect(() => {
-    if (clients.length) {
-      console.log('[👥 Clients fetched]', clients);
-    }
-  }, [clients]);
-
   const handleCreateClient = async () => {
     try {
-      if (!currentTrainer?.id) throw new Error('Trainer ID missing');
+      if (!currentTrainer?.id) {
+        throw new Error('Trainer ID missing');
+      }
 
-      await createClient({
-        ...clientData,
-        trainerId: currentTrainer.id,
-      });
+      const payload = { ...clientData, trainerId: currentTrainer.id };
+      console.log('🚨 Creating client with payload:', payload);
+
+      await createClient(payload);
 
       setClientSuccessMessage('Client created successfully!');
       setClientData({
@@ -66,9 +53,11 @@ const TrainerDashboardContent = () => {
         contactNumber: '',
         sex: '',
         dateOfBirth: '',
-        trainerId: '',
       });
       setShowClientForm(false);
+
+      await getClientsForTrainer(currentTrainer.id);
+
       setTimeout(() => setClientSuccessMessage(null), 3000);
     } catch (err) {
       console.error('Client creation failed:', err);
@@ -101,17 +90,13 @@ const TrainerDashboardContent = () => {
           </div>
 
           <div className={classes.card}>
-            <h2 className={classes.sectionTitle}>Welcome, {currentTrainer.name}!</h2>
-            <p className={classes.subtleText}>
-              <strong>Email:</strong> {currentTrainer.email}
-            </p>
-            <p className={classes.subtleText}>
-              <strong>Role:</strong> {currentTrainer.role}
-            </p>
+            <h2 className={classes.sectionTitle}>
+              Welcome, <span style={{ color: '#1f2937' }}>{currentTrainer.name}</span>!
+            </h2>
+            <p className={classes.subtleText}><strong>Email:</strong> {currentTrainer.email}</p>
+            <p className={classes.subtleText}><strong>Role:</strong> {currentTrainer.role}</p>
             {currentTrainer.contactNumber && (
-              <p className={classes.subtleText}>
-                <strong>Contact:</strong> {currentTrainer.contactNumber}
-              </p>
+              <p className={classes.subtleText}><strong>Contact:</strong> {currentTrainer.contactNumber}</p>
             )}
 
             <div className={classes.buttonRow}>
@@ -130,45 +115,21 @@ const TrainerDashboardContent = () => {
                   </div>
                 )}
 
-                <label className={classes.formLabel}>Full Name</label>
-                <input
-                  className={classes.formInput}
-                  type="text"
-                  value={clientData.fullName}
-                  onChange={(e) => setClientData({ ...clientData, fullName: e.target.value })}
-                />
-
-                <label className={classes.formLabel}>Email</label>
-                <input
-                  className={classes.formInput}
-                  type="email"
-                  value={clientData.email}
-                  onChange={(e) => setClientData({ ...clientData, email: e.target.value })}
-                />
-
-                <label className={classes.formLabel}>Contact Number</label>
-                <input
-                  className={classes.formInput}
-                  type="text"
-                  value={clientData.contactNumber}
-                  onChange={(e) => setClientData({ ...clientData, contactNumber: e.target.value })}
-                />
-
-                <label className={classes.formLabel}>Sex</label>
-                <input
-                  className={classes.formInput}
-                  type="text"
-                  value={clientData.sex}
-                  onChange={(e) => setClientData({ ...clientData, sex: e.target.value })}
-                />
-
-                <label className={classes.formLabel}>Date of Birth</label>
-                <input
-                  className={classes.formInput}
-                  type="date"
-                  value={clientData.dateOfBirth}
-                  onChange={(e) => setClientData({ ...clientData, dateOfBirth: e.target.value })}
-                />
+                {['fullName', 'email', 'contactNumber', 'sex', 'dateOfBirth'].map((field) => (
+                  <div key={field}>
+                    <label className={classes.formLabel}>
+                      {field.replace(/([A-Z])/g, ' $1')}
+                    </label>
+                    <input
+                      className={classes.formInput}
+                      type={field === 'dateOfBirth' ? 'date' : 'text'}
+                      value={clientData[field as keyof typeof clientData]}
+                      onChange={(e) =>
+                        setClientData({ ...clientData, [field]: e.target.value })
+                      }
+                    />
+                  </div>
+                ))}
 
                 <button className={classes.actionButton} onClick={handleCreateClient}>
                   Submit Client
@@ -177,31 +138,19 @@ const TrainerDashboardContent = () => {
             )}
           </div>
 
-          <div className={classes.card}>
-            <h3 className={classes.sectionTitle}>Clients</h3>
-            {clients.length === 0 ? (
-              <p className={classes.subtleText}>
-                No clients assigned yet.
-              </p>
-            ) : (
-              <ul className={classes.list}>
-                {clients.map((client) => (
-                  <li key={client.clientId || client.id} className={classes.listItem}>
-                    <div>
-                      <strong
-                        style={{ color: '#111827', fontSize: '1rem', display: 'block' }}
-                      >
-                        👤 {client.fullName}
-                      </strong>
-                      <span style={{ color: '#374151' }}>{client.email}</span>
-                      <br />
-                      <span style={{ color: '#4b5563' }}>{client.contactNumber}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          {clients.length > 0 && (
+            <div className={classes.clientGrid}>
+              {clients.map((client) => (
+                <div key={client.clientId || client.id} className={classes.card}>
+                  <h3 style={{ marginBottom: '0.5rem' }}>{client.fullName}</h3>
+                  <p><strong>Email:</strong> {client.email}</p>
+                  <p><strong>Contact:</strong> {client.contactNumber}</p>
+                  <p><strong>Sex:</strong> {client.sex}</p>
+                  <p><strong>DOB:</strong> {client.dateOfBirth}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>

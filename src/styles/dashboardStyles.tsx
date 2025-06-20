@@ -18,6 +18,7 @@ const COLORS = {
   successHover: '#059669',
   danger: '#ef4444',
   dangerHover: '#dc2626',
+  zebraStripe: '#f9fafc',
 };
 
 const FONT = {
@@ -33,6 +34,9 @@ export const useDashboardStyles = createUseStyles({
     minHeight: '100vh',
     padding: '2rem',
     boxSizing: 'border-box',
+    '@media (max-width: 600px)': {
+      padding: '1rem',
+    },
   },
   card: {
     backgroundColor: COLORS.card,
@@ -40,12 +44,20 @@ export const useDashboardStyles = createUseStyles({
     padding: '2rem',
     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
     marginBottom: '2rem',
+    '@media (max-width: 600px)': {
+      padding: '1rem',
+    },
   },
   sectionTitle: {
     fontSize: FONT.xl,
     fontWeight: 700,
     marginBottom: '1rem',
     color: COLORS.title,
+  },
+  subtleText: {
+    color: COLORS.subtext,
+    fontSize: FONT.sm,
+    margin: '0.25rem 0',
   },
   statsGrid: {
     display: 'grid',
@@ -93,6 +105,9 @@ export const useDashboardStyles = createUseStyles({
     gap: '1rem',
     marginTop: '1.5rem',
     flexWrap: 'wrap',
+    '@media (max-width: 500px)': {
+      flexDirection: 'column',
+    },
   },
   actionButton: {
     backgroundColor: COLORS.primary,
@@ -115,16 +130,10 @@ export const useDashboardStyles = createUseStyles({
     },
   },
   logoutButton: {
-    padding: '0.5rem 1rem',
     backgroundColor: COLORS.danger,
-    color: 'white',
-    border: 'none',
-    borderRadius: '0.25rem',
-    cursor: 'pointer',
-    fontWeight: 500,
-    '&:hover': {
-      backgroundColor: COLORS.dangerHover,
-    },
+  '&:hover': {
+    backgroundColor: COLORS.dangerHover,
+  },
   },
   button: {
     padding: '0.5rem 1rem',
@@ -160,10 +169,27 @@ export const useDashboardStyles = createUseStyles({
     borderBottom: `1px solid ${COLORS.lightGray}`,
     color: COLORS.subtext,
   },
+  clientTableWrapper: {
+    marginTop: '1rem',
+  },
+  clientTable: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: FONT.base,
+    '& tr:nth-child(even)': {
+      backgroundColor: COLORS.zebraStripe,
+    },
+    '& th, & td': {
+      padding: '0.75rem',
+      textAlign: 'left',
+      borderBottom: `1px solid ${COLORS.lightGray}`,
+    },
+  },
   headerRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
   },
   list: {
     listStyle: 'none',
@@ -171,8 +197,52 @@ export const useDashboardStyles = createUseStyles({
     margin: 0,
   },
   listItem: {
-    padding: '0.5rem 0',
-    borderBottom: `1px solid ${COLORS.lightGray}`,
+  padding: '0.75rem 0',
+  borderBottom: `1px solid ${COLORS.lightGray}`,
+  fontSize: FONT.base,
+  color: COLORS.text,
+},
+  formSection: {
+    marginTop: '2rem',
+    padding: '1.5rem',
+    backgroundColor: COLORS.card,
+    borderRadius: '0.75rem',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+  },
+  formTitle: {
+    fontSize: FONT.lg,
+    fontWeight: 600,
+    marginBottom: '1rem',
+    color: COLORS.title,
+  },
+  formInput: {
+    width: '100%',
+    padding: '0.75rem',
+    marginBottom: '1rem',
     fontSize: FONT.base,
+    borderRadius: '0.375rem',
+    border: `1px solid ${COLORS.lightGray}`,
+    boxSizing: 'border-box',
+    outline: 'none',
+    '&:focus': {
+      borderColor: COLORS.primary,
+      boxShadow: `0 0 0 1px ${COLORS.primary}`,
+    },
+    '@media (max-width: 500px)': {
+      fontSize: FONT.sm,
+    },
+  },
+  formLabel: {
+    fontSize: FONT.sm,
+    fontWeight: 500,
+    color: COLORS.subtext,
+    marginBottom: '0.25rem',
+    display: 'block',
+  },
+  statusMessage: {
+    marginTop: '1rem',
+    fontSize: FONT.base,
+    fontWeight: 500,
+    color: COLORS.text,
   },
 });

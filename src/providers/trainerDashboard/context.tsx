@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import { IClient } from '@/providers/authProvider/context';
 
 // Represents the current trainer's data
 export interface ITrainer {
@@ -14,10 +15,12 @@ export interface ITrainerDashboardState {
   isSuccess: boolean;
   isError: boolean;
   currentTrainer: ITrainer | null;
+  clients: IClient[]; 
 }
 
 export interface ITrainerDashboardActions {
   getCurrentTrainer: () => Promise<void>;
+  getClientsForTrainer: (trainerId: string) => Promise<void>;
 }
 
 export const INITIAL_TRAINER_STATE: ITrainerDashboardState = {
@@ -25,6 +28,7 @@ export const INITIAL_TRAINER_STATE: ITrainerDashboardState = {
   isSuccess: false,
   isError: false,
   currentTrainer: null,
+  clients: [],
 };
 
 export const TrainerDashboardStateContext = createContext<ITrainerDashboardState>(INITIAL_TRAINER_STATE);

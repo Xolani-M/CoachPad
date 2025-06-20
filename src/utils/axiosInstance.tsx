@@ -4,7 +4,7 @@ import { getToken } from './tokenService';
 
 const instance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://body-vault-server-b9ede5286d4c.herokuapp.com/api',
-  timeout: 10000,
+  timeout: 20000, // ⬅️ increased from 10000 to 20000 ms (20 seconds)
   headers: {
     'Content-Type': 'application/json',
   },

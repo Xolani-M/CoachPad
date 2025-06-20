@@ -3,11 +3,13 @@
 import { createContext } from 'react';
 
 // -------------------- Role Definitions --------------------
-export type UserRole = 'admin' | 'user';
+export type UserRole = 'admin' | 'trainer' | 'client';
+
 
 // -------------------- Base User Interface --------------------
 interface IBaseUser {
   id: string;
+  _id?: string;
   name: string;
   email: string;
   avatar?: string;
@@ -31,6 +33,7 @@ export interface IClient extends IBaseUser {
   clientId?: string;
   trainerId: string;
   sex?: string;
+  fullName: string;
 }
 
 export type IUser = ITrainer | IClient;
@@ -83,7 +86,7 @@ export interface IAuthState {
   isError: boolean;
   error?: string;
   isAuthenticated: boolean;
-  user?: IUser;
+  user?: IUser | null;
   permissions?: string[];
   token: string | null;
   userRole: string | null;
@@ -99,7 +102,8 @@ export interface IAuthActionContext {
   logout: () => void;
   checkAuth: () => Promise<void>;
   refreshToken?: () => Promise<void>;
-  getCurrentUser: () => Promise<void>;
+  getCurrentUser: () => Promise<{ user: IUser; token: string } | null>;
+
 }
 
 // -------------------- Combined Context Type (Optional) --------------------
@@ -111,7 +115,7 @@ export const INITIAL_AUTH_STATE: IAuthState = {
   isSuccess: false,
   isError: false,
   isAuthenticated: false,
-  user: undefined,
+  user: null,
   permissions: [],
   token: null,
   userRole: null,
